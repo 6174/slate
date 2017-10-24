@@ -1,6 +1,6 @@
 
 import isPlainObject from 'is-plain-object'
-import { List, Record, Set } from 'immutable'
+import { List, Record, Set } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 import Character from './character'
@@ -13,7 +13,7 @@ import Mark from './mark'
  */
 
 const DEFAULTS = {
-  marks: new Set(),
+  marks: {},
   text: '',
 }
 
@@ -56,9 +56,8 @@ class Leaf extends Record(DEFAULTS) {
    */
 
   static createList(value = []) {
-    if (List.isList(value) || Array.isArray(value)) {
-      const list = new List(value.map(Leaf.create))
-      return list
+    if (Array.isArray(value)) {
+      return value.map(Leaf.create)
     }
 
     throw new Error(`\`Leaf.createList\` only accepts arrays or lists, but you passed it: ${value}`)
@@ -79,7 +78,7 @@ class Leaf extends Record(DEFAULTS) {
 
     const leaf = new Leaf({
       text,
-      marks: new Set(marks.map(Mark.fromJSON)),
+      marks: marks.map(Mark.fromJSON),
     })
 
     return leaf
@@ -110,7 +109,7 @@ class Leaf extends Record(DEFAULTS) {
    */
 
   static isLeafList(value) {
-    return List.isList(value) && value.every(item => Leaf.isLeaf(item))
+    return Array.isArray(value) && value.every(item => Leaf.isLeaf(item))
   }
 
   /**
@@ -152,7 +151,7 @@ class Leaf extends Record(DEFAULTS) {
   toJSON() {
     const object = {
       kind: this.kind,
-      marks: this.marks.toArray().map(m => m.toJSON()),
+      marks: this.marks.map(m => m.toJSON()),
       text: this.text,
     }
 
