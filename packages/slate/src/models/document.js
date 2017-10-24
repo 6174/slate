@@ -11,7 +11,7 @@ import './inline'
  */
 
 import isPlainObject from 'is-plain-object'
-import { List, Map, Record } from 'immutable'
+import { List, Map, Record } from './Base'
 
 import Node from './node'
 import MODEL_TYPES from '../constants/model-types'
@@ -24,9 +24,9 @@ import generateKey from '../utils/generate-key'
  */
 
 const DEFAULTS = {
-  data: new Map(),
+  data: {},
   key: undefined,
-  nodes: new List(),
+  nodes: [],
 }
 
 /**
@@ -49,7 +49,7 @@ class Document extends Record(DEFAULTS) {
       return attrs
     }
 
-    if (List.isList(attrs) || Array.isArray(attrs)) {
+    if (Array.isArray(attrs)) {
       attrs = { nodes: attrs }
     }
 
@@ -80,8 +80,8 @@ class Document extends Record(DEFAULTS) {
 
     const document = new Document({
       key,
-      data: new Map(data),
-      nodes: new List(nodes.map(Node.fromJSON)),
+      data,
+      nodes: nodes.map(Node.fromJSON),
     })
 
     return document
@@ -143,10 +143,10 @@ class Document extends Record(DEFAULTS) {
 
   toJSON(options = {}) {
     const object = {
-      data: this.data.toJSON(),
+      data: this.data,
       key: this.key,
       kind: this.kind,
-      nodes: this.nodes.toArray().map(n => n.toJSON(options)),
+      nodes: this.nodes.map(n => n.toJSON(options)),
     }
 
     if (!options.preserveKeys) {
