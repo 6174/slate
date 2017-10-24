@@ -179,61 +179,8 @@ Object.keys(Changes).forEach((type) => {
     this.call(Changes[type], ...args)
     return this
   }
-})
+});
 
-/**
- * Add deprecation warnings in case people try to access a change as a state.
- */
-
-;[
-  'hasUndos',
-  'hasRedos',
-  'isBlurred',
-  'isFocused',
-  'isCollapsed',
-  'isExpanded',
-  'isBackward',
-  'isForward',
-  'startKey',
-  'endKey',
-  'startOffset',
-  'endOffset',
-  'anchorKey',
-  'focusKey',
-  'anchorOffset',
-  'focusOffset',
-  'startBlock',
-  'endBlock',
-  'anchorBlock',
-  'focusBlock',
-  'startInline',
-  'endInline',
-  'anchorInline',
-  'focusInline',
-  'startText',
-  'endText',
-  'anchorText',
-  'focusText',
-  'characters',
-  'marks',
-  'blocks',
-  'fragment',
-  'inlines',
-  'texts',
-  'isEmpty',
-].forEach((getter) => {
-  Object.defineProperty(Change.prototype, getter, {
-    get() {
-      logger.deprecate('0.22.0', `You attempted to access the \`${getter}\` property of what was previously a \`state\` object but is now a \`change\` object. This syntax has been deprecated as plugins are now passed \`change\` objects instead of \`state\` objects.`)
-      return this.state[getter]
-    }
-  })
-})
-
-Change.prototype.transform = function () {
-  logger.deprecate('0.22.0', 'You attempted to call `.transform()` on what was previously a `state` object but is now already a `change` object. This syntax has been deprecated as plugins are now passed `change` objects instead of `state` objects.')
-  return this
-}
 
 /**
  * Export.

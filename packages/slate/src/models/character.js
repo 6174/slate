@@ -1,7 +1,7 @@
 
 import isPlainObject from 'is-plain-object'
 import logger from 'slate-dev-logger'
-import { List, Record, Set } from 'immutable'
+import { List, Record, Set } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 
@@ -12,7 +12,7 @@ import MODEL_TYPES from '../constants/model-types'
  */
 
 const DEFAULTS = {
-  marks: new Set(),
+  marks: {},
   text: '',
 }
 
@@ -59,9 +59,8 @@ class Character extends Record(DEFAULTS) {
       elements = elements.split('')
     }
 
-    if (List.isList(elements) || Array.isArray(elements)) {
-      const list = new List(elements.map(Character.create))
-      return list
+    if (Array.isArray(elements)) {
+      return elements.map(Character.create)
     }
 
     throw new Error(`\`Block.createList\` only accepts strings, arrays or lists, but you passed it: ${elements}`)
@@ -86,8 +85,8 @@ class Character extends Record(DEFAULTS) {
 
     const character = new Character({
       text,
-      marks: new Set(marks),
-    })
+      marks
+    });
 
     return character
   }
@@ -117,16 +116,7 @@ class Character extends Record(DEFAULTS) {
    */
 
   static isCharacterList(value) {
-    return List.isList(value) && value.every(item => Character.isCharacter(item))
-  }
-
-  /**
-   * Deprecated.
-   */
-
-  static createListFromText(string) {
-    logger.deprecate('0.22.0', 'The `Character.createListFromText(string)` method is deprecated, use `Character.createList(string)` instead.')
-    return this.createList(string)
+    return Array.isArray(value) && value.every(item => Character.isCharacter(item))
   }
 
   /**
@@ -148,7 +138,7 @@ class Character extends Record(DEFAULTS) {
   toJSON() {
     const object = {
       kind: this.kind,
-      marks: this.marks.toArray().map(m => m.toJSON()),
+      marks: this.marks.map(m => m.toJSON()),
       text: this.text,
     }
 
