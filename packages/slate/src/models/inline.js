@@ -10,7 +10,7 @@ import './document'
  */
 
 import isPlainObject from 'is-plain-object'
-import { List, Map, Record } from 'immutable'
+import { List, Map, Record } from './base'
 
 import Node from './node'
 import MODEL_TYPES from '../constants/model-types'
@@ -23,10 +23,10 @@ import generateKey from '../utils/generate-key'
  */
 
 const DEFAULTS = {
-  data: new Map(),
+  data: {},
   isVoid: false,
   key: undefined,
-  nodes: new List(),
+  nodes: {},
   type: undefined,
 }
 
@@ -69,9 +69,8 @@ class Inline extends Record(DEFAULTS) {
    */
 
   static createList(elements = []) {
-    if (List.isList(elements) || Array.isArray(elements)) {
-      const list = new List(elements.map(Inline.create))
-      return list
+    if (Array.isArray(elements)) {
+      return elements.map(Inline.create)
     }
 
     throw new Error(`\`Inline.createList\` only accepts arrays or lists, but you passed it: ${elements}`)
@@ -105,8 +104,8 @@ class Inline extends Record(DEFAULTS) {
       key,
       type,
       isVoid: !!isVoid,
-      data: new Map(data),
-      nodes: new List(nodes.map(Node.fromJSON)),
+      data,
+      nodes: nodes.map(Node.fromJSON),
     })
 
     return inline
@@ -137,7 +136,7 @@ class Inline extends Record(DEFAULTS) {
    */
 
   static isInlineList(value) {
-    return List.isList(value) && value.every(item => Inline.isInline(item))
+    return Array.isArray(value) && value.every(item => Inline.isInline(item))
   }
 
   /**
@@ -179,12 +178,12 @@ class Inline extends Record(DEFAULTS) {
 
   toJSON(options = {}) {
     const object = {
-      data: this.data.toJSON(),
+      data: this.data,
       key: this.key,
       kind: this.kind,
       isVoid: this.isVoid,
       type: this.type,
-      nodes: this.nodes.toArray().map(n => n.toJSON(options)),
+      nodes: this.nodes.map(n => n.toJSON(options)),
     }
 
     if (!options.preserveKeys) {
