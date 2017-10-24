@@ -2,7 +2,7 @@
 import Debug from 'debug'
 import isEqual from 'lodash/isEqual'
 import isPlainObject from 'is-plain-object'
-import { Record, Stack } from 'immutable'
+import { Record, Stack } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 
