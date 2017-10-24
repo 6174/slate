@@ -2,7 +2,7 @@
 import direction from 'direction'
 import isPlainObject from 'is-plain-object'
 import logger from 'slate-dev-logger'
-import { List, OrderedSet, Set } from 'immutable'
+import { List, OrderedSet, Set } from './base'
 
 import Block from './block'
 import Data from './data'
@@ -59,9 +59,8 @@ class Node {
    */
 
   static createList(elements = []) {
-    if (List.isList(elements) || Array.isArray(elements)) {
-      const list = new List(elements.map(Node.create))
-      return list
+    if (Array.isArray(elements)) {
+      return elements.map(Node.create)
     }
 
     throw new Error(`\`Node.createList\` only accepts lists or arrays, but you passed it: ${elements}`)
@@ -149,7 +148,7 @@ class Node {
    */
 
   static isNodeList(value) {
-    return List.isList(value) && value.every(item => Node.isNode(item))
+    return Array.isArray(value) && value.every(item => Node.isNode(item))
   }
 
   /**
@@ -258,7 +257,7 @@ class Node {
       if (iterator(node, i, nodes)) matches.push(node)
     })
 
-    return List(matches)
+    return matches
   }
 
   /**
@@ -309,6 +308,8 @@ class Node {
   /**
    * Get the path of ancestors of a descendant node by `key`.
    *
+   * @question 子节点的 ancestors 为什么不是自己的  ancestors + 自己 ？
+   *
    * @param {String|Node} key
    * @return {List<Node>|Null}
    */
@@ -316,8 +317,8 @@ class Node {
   getAncestors(key) {
     key = normalizeKey(key)
 
-    if (key == this.key) return List()
-    if (this.hasChild(key)) return List([this])
+    if (key == this.key) return []
+    if (this.hasChild(key)) return [this]
 
     let ancestors
     this.nodes.find((node) => {
@@ -369,7 +370,7 @@ class Node {
   getBlocksAtRange(range) {
     const array = this.getBlocksAtRangeAsArray(range)
     // Eliminate duplicates by converting to an `OrderedSet` first.
-    return new List(new OrderedSet(array))
+    return array
   }
 
   /**
@@ -406,7 +407,7 @@ class Node {
 
   getBlocksByType(type) {
     const array = this.getBlocksByTypeAsArray(type)
-    return new List(array)
+    return array
   }
 
   /**
@@ -437,7 +438,7 @@ class Node {
 
   getCharacters() {
     const array = this.getCharactersAsArray()
-    return new List(array)
+    return array
   }
 
   /**
@@ -463,7 +464,7 @@ class Node {
 
   getCharactersAtRange(range) {
     const array = this.getCharactersAtRangeAsArray(range)
-    return new List(array)
+    return array
   }
 
   /**
@@ -503,6 +504,8 @@ class Node {
   /**
    * Get closest parent of node by `key` that matches `iterator`.
    *
+   * @question Orderset 才有 findLast 方法，
+   * 
    * @param {String} key
    * @param {Function} iterator
    * @return {Node|Null}
@@ -510,13 +513,14 @@ class Node {
 
   getClosest(key, iterator) {
     key = normalizeKey(key)
-    const ancestors = this.getAncestors(key)
+    const ancestors = this.getAncestors(key);
     if (!ancestors) {
       throw new Error(`Could not find a descendant node with key "${key}".`)
     }
 
+    ancestors.pop();
     // Exclude this node itself.
-    return ancestors.rest().findLast(iterator)
+    return ancestors.findLast(iterator)
   }
 
   /**
@@ -579,7 +583,7 @@ class Node {
     }
 
     while (twoParent) {
-      if (ancestors.includes(twoParent)) return twoParent
+      if (ancestors.indexOf(twoParent) != -1) return twoParent
       twoParent = this.getParent(twoParent.key)
     }
   }
@@ -661,7 +665,7 @@ class Node {
       const index = path[i]
       if (!descendant) return
       if (!descendant.nodes) return
-      descendant = descendant.nodes.get(index)
+      descendant = descendant.nodes[index]
     }
 
     return descendant
@@ -752,6 +756,8 @@ class Node {
   /**
    * Get the furthest parent of a node by `key` that matches an `iterator`.
    *
+   * @question rest
+   *
    * @param {String} key
    * @param {Function} iterator
    * @return {Node|Null}
@@ -764,8 +770,9 @@ class Node {
       throw new Error(`Could not find a descendant node with key "${key}".`)
     }
 
+    ancestors.pop();
     // Exclude this node itself
-    return ancestors.rest().find(iterator)
+    return ancestors.find(iterator)
   }
 
   /**
@@ -838,7 +845,7 @@ class Node {
 
   getInlines() {
     const array = this.getInlinesAsArray()
-    return new List(array)
+    return array
   }
 
   /**
@@ -872,7 +879,7 @@ class Node {
   getInlinesAtRange(range) {
     const array = this.getInlinesAtRangeAsArray(range)
     // Remove duplicates by converting it to an `OrderedSet` first.
-    return new List(new OrderedSet(array))
+    return array
   }
 
   /**
@@ -901,7 +908,7 @@ class Node {
 
   getInlinesByType(type) {
     const array = this.getInlinesByTypeAsArray(type)
-    return new List(array)
+    return array
   }
 
   /**
@@ -948,7 +955,7 @@ class Node {
 
   getKeys() {
     const keys = this.getKeysAsArray()
-    return new Set(keys)
+    return keys
   }
 
   /**
@@ -977,7 +984,7 @@ class Node {
 
   getMarks() {
     const array = this.getMarksAsArray()
-    return new Set(array)
+    return array
   }
 
   /**
@@ -988,7 +995,7 @@ class Node {
 
   getOrderedMarks() {
     const array = this.getMarksAsArray()
-    return new OrderedSet(array)
+    return array
   }
 
   /**
@@ -1012,7 +1019,7 @@ class Node {
 
   getMarksAtRange(range) {
     const array = this.getMarksAtRangeAsArray(range)
-    return new Set(array)
+    return array
   }
 
   /**
@@ -1024,7 +1031,7 @@ class Node {
 
   getOrderedMarksAtRange(range) {
     const array = this.getMarksAtRangeAsArray(range)
-    return new OrderedSet(array)
+    return array
   }
 
   /**
@@ -1036,7 +1043,7 @@ class Node {
 
   getActiveMarksAtRange(range) {
     const array = this.getActiveMarksAtRangeAsArray(range)
-    return new Set(array)
+    return array
   }
 
   /**
@@ -1056,15 +1063,15 @@ class Node {
     if (range.isCollapsed && startOffset == 0) {
       const previous = this.getPreviousText(startKey)
       if (!previous || previous.text.length == 0) return []
-      const char = previous.characters.get(previous.text.length - 1)
-      return char.marks.toArray()
+      const char = previous.characters[previous.text.length - 1]
+      return char.marks
     }
 
     // If the range is collapsed, check the character before the start.
     if (range.isCollapsed) {
       const text = this.getDescendant(startKey)
-      const char = text.characters.get(range.startOffset - 1)
-      return char.marks.toArray()
+      const char = text.characters[range.startOffset - 1]
+      return char.marks
     }
 
     // Otherwise, get a set of the marks for each character in the range.
