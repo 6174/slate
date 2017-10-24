@@ -3,14 +3,14 @@
  * Prevent circular dependencies.
  */
 
-import './document'
+import './document';
 
 /**
  * Dependencies.
  */
 
 import isPlainObject from 'is-plain-object'
-import { List, Map, Record } from 'immutable'
+import { List, Map, Record } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 import Node from './node'
@@ -23,10 +23,10 @@ import generateKey from '../utils/generate-key'
  */
 
 const DEFAULTS = {
-  data: new Map(),
+  data: {},
   isVoid: false,
   key: undefined,
-  nodes: new List(),
+  nodes: [],
   type: undefined,
 }
 
@@ -65,16 +65,16 @@ class Block extends Record(DEFAULTS) {
    * Create a list of `Blocks` from `value`.
    *
    * @param {Array<Block|Object>|List<Block|Object>} value
-   * @return {List<Block>}
+   * @return {Array<Block>}
    */
 
   static createList(value = []) {
-    if (List.isList(value) || Array.isArray(value)) {
-      const list = new List(value.map(Block.create))
-      return list
+
+    if (Array.isArray(value)) {
+      return value.map(Block.create);
     }
 
-    throw new Error(`\`Block.createList\` only accepts arrays or lists, but you passed it: ${value}`)
+    throw new Error(`\`Block.createList\` only accepts arrays, but you passed it: ${value}`)
   }
 
   /**
@@ -97,7 +97,7 @@ class Block extends Record(DEFAULTS) {
       type,
     } = object
 
-    if (typeof type != 'string') {
+    if (typeof type !== 'string') {
       throw new Error('`Block.fromJSON` requires a `type` string.')
     }
 
@@ -105,8 +105,8 @@ class Block extends Record(DEFAULTS) {
       key,
       type,
       isVoid: !!isVoid,
-      data: new Map(data),
-      nodes: new List(nodes.map(Node.fromJSON)),
+      data,
+      nodes: nodes.map(Node.fromJSON),
     })
 
     return block
@@ -137,7 +137,7 @@ class Block extends Record(DEFAULTS) {
    */
 
   static isBlockList(value) {
-    return List.isList(value) && value.every(item => Block.isBlock(item))
+    return Array.isArray(value) && value.every(item => Block.isBlock(item))
   }
 
   /**
@@ -179,12 +179,12 @@ class Block extends Record(DEFAULTS) {
 
   toJSON(options = {}) {
     const object = {
-      data: this.data.toJSON(),
+      data: this.data,
       key: this.key,
       kind: this.kind,
       isVoid: this.isVoid,
       type: this.type,
-      nodes: this.nodes.toArray().map(n => n.toJSON(options)),
+      nodes: this.nodes.map(n => n.toJSON(options)),
     }
 
     if (!options.preserveKeys) {
