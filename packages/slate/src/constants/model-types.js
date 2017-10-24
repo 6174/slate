@@ -19,6 +19,7 @@ const MODEL_TYPES = {
   STACK: '@@__SLATE_STACK__@@',
   STATE: '@@__SLATE_STATE__@@',
   TEXT: '@@__SLATE_TEXT__@@',
+  DATA: '@@__SLATE_DATA__@@'
 }
 
 /**

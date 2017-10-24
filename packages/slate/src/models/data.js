@@ -1,7 +1,6 @@
 
 import isPlainObject from 'is-plain-object'
-import { Map } from 'immutable'
-
+import MODEL_TYPES from "./types";
 /**
  * Data.
  *
@@ -12,6 +11,11 @@ import { Map } from 'immutable'
  */
 
 class Data {
+  constructor(props) {
+    for (let attr in props) {
+      this[attr] = props[attr];
+    }  
+  }
 
   /**
    * Create a new `Data` with `attrs`.
@@ -21,12 +25,12 @@ class Data {
    */
 
   static create(attrs = {}) {
-    if (Map.isMap(attrs)) {
-      return attrs
+    if (Data.isData(attrs)) {
+      return attrs;
     }
 
     if (isPlainObject(attrs)) {
-      return Data.fromJSON(attrs)
+      return new Data(attrs)
     }
 
     throw new Error(`\`Data.create\` only accepts objects or maps, but you passed it: ${attrs}`)
@@ -40,7 +44,18 @@ class Data {
    */
 
   static fromJSON(object) {
-    return new Map(object)
+    return new Data(object)
+  }
+
+  /**
+   * Check if a `value` is `Data`
+   *
+   * @param {Object|Data} value
+   * @return {Boolean}
+   */
+
+  static isData(value) {
+    return !!(value && value[MODEL_TYPES.DATA])
   }
 
   /**
@@ -50,6 +65,9 @@ class Data {
   static fromJS = Data.fromJSON
 
 }
+
+Data.prototype[MODEL_TYPES.DATA] = true
+
 
 /**
  * Export.
