@@ -1,6 +1,6 @@
 
 import isPlainObject from 'is-plain-object'
-import { Map, Record, Set } from 'immutable'
+import { Map, Record, Set } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 import Data from './data'
@@ -13,7 +13,7 @@ import memoize from '../utils/memoize'
  */
 
 const DEFAULTS = {
-  data: new Map(),
+  data: {},
   type: undefined,
 }
 
@@ -56,13 +56,12 @@ class Mark extends Record(DEFAULTS) {
    */
 
   static createSet(elements) {
-    if (Set.isSet(elements) || Array.isArray(elements)) {
-      const marks = new Set(elements.map(Mark.create))
-      return marks
+    if (Array.isArray(elements)) {
+      return elements.map(Mark.create)
     }
 
     if (elements == null) {
-      return new Set()
+      return {}
     }
 
     throw new Error(`\`Mark.createSet\` only accepts sets, arrays or null, but you passed it: ${elements}`)
@@ -116,7 +115,7 @@ class Mark extends Record(DEFAULTS) {
 
     const mark = new Mark({
       type,
-      data: new Map(data),
+      data,
     })
 
     return mark
@@ -147,7 +146,7 @@ class Mark extends Record(DEFAULTS) {
    */
 
   static isMarkSet(value) {
-    return Set.isSet(value) && value.every(item => Mark.isMark(item))
+    return Array.isArray(value) && value.every(item => Mark.isMark(item))
   }
 
   /**
@@ -177,7 +176,7 @@ class Mark extends Record(DEFAULTS) {
 
   toJSON() {
     const object = {
-      data: this.data.toJSON(),
+      data: this.data,
       kind: this.kind,
       type: this.type,
     }
