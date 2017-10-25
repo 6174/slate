@@ -1,7 +1,7 @@
 
 import isPlainObject from 'is-plain-object'
 import logger from 'slate-dev-logger'
-import { Record, Set, List, Map } from 'immutable'
+import { Record, Set, List, Map } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 import SCHEMA from '../schemas/core'
@@ -9,6 +9,7 @@ import Data from './data'
 import Document from './document'
 import History from './history'
 import Range from './range'
+import _ from "lodash";
 
 /**
  * Default properties.
@@ -20,7 +21,7 @@ const DEFAULTS = {
   document: Document.create(),
   selection: Range.create(),
   history: History.create(),
-  data: new Map(),
+  data: {},
   decorations: null,
 }
 
@@ -93,7 +94,7 @@ class State extends Record(DEFAULTS) {
       selection = {},
     } = object
 
-    let data = new Map()
+    let data = {}
 
     document = Document.fromJSON(document)
     selection = Range.fromJSON(selection)
@@ -101,13 +102,13 @@ class State extends Record(DEFAULTS) {
     // Allow plugins to set a default value for `data`.
     if (options.plugins) {
       for (const plugin of options.plugins) {
-        if (plugin.data) data = data.merge(plugin.data)
+        if (plugin.data) data = _.merge(data, plugin.data)
       }
     }
 
     // Then merge in the `data` provided.
     if ('data' in object) {
-      data = data.merge(object.data)
+      data = _.merge(data, object.data)
     }
 
     if (selection.isUnset) {
@@ -507,7 +508,7 @@ class State extends Record(DEFAULTS) {
 
   get characters() {
     return this.selection.isUnset
-      ? new List()
+      ? []
       : this.document.getCharactersAtRange(this.selection)
   }
 
@@ -519,7 +520,7 @@ class State extends Record(DEFAULTS) {
 
   get marks() {
     return this.selection.isUnset
-      ? new Set()
+      ? {}
       : this.selection.marks || this.document.getMarksAtRange(this.selection)
   }
 
@@ -531,7 +532,7 @@ class State extends Record(DEFAULTS) {
 
   get activeMarks() {
     return this.selection.isUnset
-      ? new Set()
+      ? {}
       : this.selection.marks || this.document.getActiveMarksAtRange(this.selection)
   }
 
@@ -543,7 +544,7 @@ class State extends Record(DEFAULTS) {
 
   get blocks() {
     return this.selection.isUnset
-      ? new List()
+      ? []
       : this.document.getBlocksAtRange(this.selection)
   }
 
@@ -567,7 +568,7 @@ class State extends Record(DEFAULTS) {
 
   get inlines() {
     return this.selection.isUnset
-      ? new List()
+      ? []
       : this.document.getInlinesAtRange(this.selection)
   }
 
@@ -579,7 +580,7 @@ class State extends Record(DEFAULTS) {
 
   get texts() {
     return this.selection.isUnset
-      ? new List()
+      ? []
       : this.document.getTextsAtRange(this.selection)
   }
 
@@ -642,7 +643,7 @@ class State extends Record(DEFAULTS) {
       data: this.data.toJSON(),
       document: this.document.toJSON(options),
       selection: this.selection.toJSON(),
-      decorations: this.decorations ? this.decorations.toArray().map(d => d.toJSON()) : null,
+      decorations: this.decorations ? this.decorations.map(d => d.toJSON()) : null,
       history: this.history.toJSON(),
     }
 

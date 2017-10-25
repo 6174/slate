@@ -57,11 +57,11 @@ class Mark extends Record(DEFAULTS) {
 
   static createSet(elements) {
     if (Array.isArray(elements)) {
-      return elements.map(Mark.create)
+      return new Set(elements.map(Mark.create))
     }
 
     if (elements == null) {
-      return {}
+      return new Set()
     }
 
     throw new Error(`\`Mark.createSet\` only accepts sets, arrays or null, but you passed it: ${elements}`)

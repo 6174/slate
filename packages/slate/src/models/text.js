@@ -1,7 +1,7 @@
 
 import isPlainObject from 'is-plain-object'
 import logger from 'slate-dev-logger'
-import { List, OrderedSet, Record, Set, is } from 'immutable'
+import { List, OrderedSet, Record, Set, is } from './base'
 
 import Character from './character'
 import Mark from './mark'
@@ -17,7 +17,7 @@ import memoize from '../utils/memoize'
  */
 
 const DEFAULTS = {
-  characters: new List(),
+  characters: [],
   key: undefined,
 }
 
@@ -65,9 +65,8 @@ class Text extends Record(DEFAULTS) {
    */
 
   static createList(value = []) {
-    if (List.isList(value) || Array.isArray(value)) {
-      const list = new List(value.map(Text.create))
-      return list
+    if (Array.isArray(value)) {
+      return value.map(Text.create)
     }
 
     throw new Error(`\`Text.createList\` only accepts arrays or lists, but you passed it: ${value}`)
@@ -102,7 +101,7 @@ class Text extends Record(DEFAULTS) {
 
     const characters = leaves
       .map(Leaf.fromJSON)
-      .reduce((l, r) => l.concat(r.getCharacters()), new List())
+      .reduce((l, r) => l.concat(r.getCharacters()), [])
 
     const node = new Text({
       characters,
@@ -137,7 +136,7 @@ class Text extends Record(DEFAULTS) {
    */
 
   static isTextList(value) {
-    return List.isList(value) && value.every(item => Text.isText(item))
+    return Array.isArray(value) && value.every(item => Text.isText(item))
   }
 
   /**

@@ -1,6 +1,6 @@
 
 import Debug from 'debug'
-import { Record } from 'immutable'
+import { Record } from './base'
 
 import MODEL_TYPES from '../constants/model-types'
 import Schema from './schema'

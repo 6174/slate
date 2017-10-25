@@ -12,7 +12,7 @@ import MODEL_TYPES from '../constants/model-types'
  */
 
 const DEFAULTS = {
-  marks: {},
+  marks: new Set(),
   text: '',
 }
 
@@ -138,7 +138,7 @@ class Character extends Record(DEFAULTS) {
   toJSON() {
     const object = {
       kind: this.kind,
-      marks: this.marks.map(m => m.toJSON()),
+      marks: this.marks.values().map(m => m.toJSON()),
       text: this.text,
     }
 
