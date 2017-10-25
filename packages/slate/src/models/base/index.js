@@ -7,11 +7,17 @@ export const Record = Base => class extends Base {
 		this[key] = value;
 		return this
 	}
+
+	merge(obj) => {
+		for (let attr in obj) {
+			this[attr] = obj[attr]
+		}
+	}
 };
 
-export const Map = {};
+export const Map = Map;
 export const List = [];
-
+export const Set = Set;
 export class Stack {
 	constructor(props = []) {
 		if (Array.isArray(props)) {
